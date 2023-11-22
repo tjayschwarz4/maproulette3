@@ -22,6 +22,7 @@ import TaskEditControl from '../TaskPane/ActiveTaskDetails/ActiveTaskControls/Ta
 import UserEditorSelector
        from '../UserEditorSelector/UserEditorSelector'
 import TaskConfirmationModal from '../TaskConfirmationModal/TaskConfirmationModal'
+import TaskTags from '../TaskTags/TaskTags'
 import messages from './Messages'
 import './ReviewTaskControls.scss'
 import ErrorTagComment from '../ErrorTagComment/ErrorTagComment'
@@ -121,9 +122,15 @@ export class ReviewTaskControls extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    const tags = _map(this.props.task.tags, (tag) => tag.name).join(', ')
+
+    if(tags.length > 0 && this.state.tags === "") {
+      this.setState({tags: tags})
+    }
+
     if (prevProps.task.id !== this.props.task.id) {
       // Clear tags if we are on a new task
-      this.setState({tags: ""})
+      this.setState({tags: tags ?? ""})
     }
   }
 
@@ -192,7 +199,6 @@ export class ReviewTaskControls extends Component {
     }
 
     const fromInbox = _get(this.props.history, 'location.state.fromInbox')
-    const tags = _map(this.props.task.tags, (tag) => tag.name)
     const errorTags = this.props.task.errorTags;
     const isMetaReview = this.props.history?.location?.pathname?.includes("meta-review")
     const reviewData = this.props.task?.review;
@@ -233,13 +239,16 @@ export class ReviewTaskControls extends Component {
             }
           </div>
         }
-        {tags.length > 0 &&
-          <div className="mr-text-sm mr-text-white">
-            <FormattedMessage
-              {...messages.taskTags}
-            /> {tags.join(', ')}
-          </div>
-        }
+       
+        <TaskTags
+          task={this.props.task}
+          tags={this.state.tags}
+          setTags={this.setTags}
+          onConfirm={this.onConfirm}
+          saveTaskTags={this.props.saveTaskTags}
+          taskReadOnly={this.props.taskReadOnly}
+        />
+
         {
           errorTags
             ?  <div className="mr-text-red">
