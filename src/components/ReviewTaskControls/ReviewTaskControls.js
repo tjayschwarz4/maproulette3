@@ -4,6 +4,11 @@ import classNames from 'classnames'
 import _get from 'lodash/get'
 import _map from 'lodash/map'
 import _merge from 'lodash/merge'
+import _pick from 'lodash/pick'
+import _isEmpty from 'lodash/isEmpty'
+import _remove from 'lodash/remove'
+import _isObject from 'lodash/isObject'
+import _isFinite from 'lodash/isFinite'
 import _cloneDeep from 'lodash/cloneDeep'
 import _isUndefined from 'lodash/isUndefined'
 import { FormattedMessage } from 'react-intl'
@@ -35,7 +40,7 @@ import ErrorTagComment from '../ErrorTagComment/ErrorTagComment'
 export class ReviewTaskControls extends Component {
   state = {
     comment: "",
-    tags: "",
+    tags: null,
     loadBy: TaskReviewLoadMethod.next,
     errorTags: []
   }
@@ -121,16 +126,34 @@ export class ReviewTaskControls extends Component {
     this.props.editTask(value, this.props.task, this.props.mapBounds, null, this.props.taskBundle, replacedComment)
   }
 
-  componentDidUpdate(prevProps) {
-    const tags = _map(this.props.task.tags, (tag) => tag.name).join(', ')
+  resetConfirmation = () => {
+    this.setState({
+      comment: "",
+      tags: null,
+      loadBy: TaskReviewLoadMethod.next,
+      errorTags: []
+    })
+  }
 
-    if(tags.length > 0 && this.state.tags === "") {
-      this.setState({tags: tags})
+  componentDidUpdate(prevProps) {
+    if (_get(this.props, 'task.id') !== _get(prevProps, 'task.id')) {
+      return this.resetConfirmation()
     }
 
-    if (prevProps.task.id !== this.props.task.id) {
-      // Clear tags if we are on a new task
-      this.setState({tags: tags ?? ""})
+    if (this.state.tags === null && _get(this.props, 'task.tags')) {
+      const unfilteredTags = _cloneDeep(this.props.task.tags)
+      
+      _remove(unfilteredTags, t => {
+        if (_isEmpty(t)) {
+          return true
+        }
+        else if (_isObject(t)) {
+          return _isEmpty(t.name)
+        }
+      })
+      const tags = _map(unfilteredTags, tag => (tag.name ? tag.name : tag)).join(', ')
+
+      return this.setState({tags: tags})
     }
   }
 
