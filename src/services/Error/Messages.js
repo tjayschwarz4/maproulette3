@@ -212,6 +212,11 @@ export default defineMessages({
     defaultMessage: "That challenge does not exist.",
   },
 
+  uploadGeoJSONInvalid: {
+    id: "Errors.challenge.uploadGeoJSONInvalid",
+    defaultMessage: "The geojson file submitted is invalid.",
+  },
+
   virtualChallengeFetchFailure: {
     id: "Errors.virtualChallenge.fetchFailure",
     defaultMessage:

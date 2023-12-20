@@ -334,7 +334,7 @@ export class EditChallenge extends Component {
           this.finishing = false;
           this.setState({ isSaving: false });
         }
-      });
+      }).catch(() => {this.finishing = false, this.setState({ isSaving: false })});
     });
   };
 

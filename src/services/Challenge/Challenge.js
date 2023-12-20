@@ -25,6 +25,7 @@ import Endpoint from "../Server/Endpoint";
 import RequestStatus from "../Server/RequestStatus";
 import genericEntityReducer from "../Server/GenericEntityReducer";
 import { commentSchema, receiveComments } from "../Comment/Comment";
+import { isFeatureCollection } from 'geojson-validation';
 import {
   projectSchema,
   fetchProject,
@@ -958,7 +959,20 @@ export const fetchChallenges = function (
       _isString(challengeData.localGeoJSON) &&
       !_isEmpty(challengeData.localGeoJSON)
     ) {
-      challengeData.localGeoJSON = JSON.parse(challengeData.localGeoJSON);
+      try {
+        const validationResult = isFeatureCollection(JSON.parse(challengeData.localGeoJSON));
+        let validationErrors = null
+        if (validationResult.errors) {
+          validationResult.errors(error => (
+            validationErrors = error
+          ));
+          throw new Error(validationErrors);
+        }
+        challengeData.localGeoJSON = JSON.parse(challengeData.localGeoJSON);
+      } catch (error) {
+        dispatch(addError(AppErrors.challenge.uploadGeoJSONInvalid), error)
+        return
+      }
     }
 
     // If there is local JSON content being transmitted as a string, parse

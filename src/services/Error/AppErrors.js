@@ -78,6 +78,7 @@ export default {
     archiveFailure: messages.challengeArchiveFailure,
     rebuildFailure: messages.challengeRebuildFailure,
     doesNotExist: messages.challengeDoesNotExist,
+    uploadGeoJSONInvalid: messages.uploadGeoJSONInvalid,
     moveFailure: messages.challengeMoveFailure
   },
 
